@@ -1,1 +1,295 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baleadas Mary | Morazán, Yoro</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #fffaf2;
+    color: #30251e;
+}
+
+/* ENCABEZADO */
+header {
+    background: #ffffff;
+    padding: 15px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    position: relative;
+    z-index: 2;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+    color: #a64b20;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: #e6a23c;
+}
+
+nav {
+    display: flex;
+    gap: 25px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #49382c;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+nav a:hover {
+    color: #d77b28;
+}
+
+/* PORTADA */
+.hero {
+    min-height: 430px;
+    background:
+    linear-gradient(rgba(22,35,20,0.38), rgba(22,35,20,0.48)),
+    url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2000&q=85');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    color: white;
+}
+
+.hero-content {
+    max-width: 750px;
+}
+
+.hero h1 {
+    font-size: clamp(38px, 7vw, 68px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 2px 4px 10px rgba(0,0,0,0.5);
+}
+
+.hero p {
+    font-size: 19px;
+    margin-top: 15px;
+    text-shadow: 1px 2px 5px #222;
+}
+
+.hero .location {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 11px 22px;
+    background: #e7a13d;
+    color: #30251e;
+    border-radius: 30px;
+    font-weight: 800;
+}
+
+/* NAVEGACIÓN DEL MENÚ */
+.menu-section {
+    padding: 55px 6%;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 34px;
+    color: #873d20;
+    font-weight: 900;
+}
+
+.section-description {
+    margin-top: 10px;
+    color: #78695d;
+    font-size: 16px;
+}
+
+.category-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 30px 0;
+}
+
+.category {
+    background: white;
+    border: 1px solid #ead9c6;
+    color: #754323;
+    border-radius: 25px;
+    padding: 11px 19px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.category:hover {
+    background: #a64b20;
+    color: white;
+}
+
+/* PRODUCTOS */
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px 20px;
+    border: 1px solid #f0e4d7;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.05);
+}
+
+.product-icon {
+    font-size: 45px;
+    margin-bottom: 12px;
+}
+
+.product-card h3 {
+    color: #873d20;
+    font-size: 19px;
+}
+
+.product-card p {
+    color: #78695d;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.price {
+    color: #b46a20;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+/* PIE DE PÁGINA */
+footer {
+    background: #38281e;
+    color: white;
+    text-align: center;
+    padding: 30px 15px;
+    margin-top: 45px;
+}
+
+footer h2 {
+    color: #f0b34f;
+    margin-bottom: 10px;
+}
+
+footer p {
+    font-size: 14px;
+    margin-top: 7px;
+    color: #e8ded4;
+}
+
+@media (max-width: 650px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    nav {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav a {
+        font-size: 13px;
+    }
+
+    .hero {
+        min-height: 350px;
+    }
+
+    .menu-section {
+        padding: 40px 5%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">BALEADAS <span>MARY</span></div>
+
+    <nav>
+        <a href="#inicio">INICIO</a>
+        <a href="#menu">MENÚ</a>
+        <a href="#contacto">CONTACTO</a>
+    </nav>
+</header>
+
+<section class="hero" id="inicio">
+    <div class="hero-content">
+        <h1>BALEADAS MARY</h1>
+        <p>El auténtico sabor que nos encanta.</p>
+        <div class="location">📍 Morazán, Yoro, Honduras</div>
+    </div>
+</section>
+
+<section class="menu-section" id="menu">
+
+    <h2 class="section-title">NUESTRO MENÚ</h2>
+    <p class="section-description">
+        Descubre nuestros sabores y disfruta cada bocado.
+    </p>
+
+    <div class="category-list">
+        <button class="category">Baleadas</button>
+        <button class="category">Desayunos</button>
+        <button class="category">Almuerzos</button>
+        <button class="category">Hamburguesas</button>
+        <button class="category">Pollo</button>
+        <button class="category">Tacos y enchiladas</button>
+        <button class="category">Combos</button>
+        <button class="category">Bebidas naturales</button>
+        <button class="category">Refrescos</button>
+        <button class="category">Postres</button>
+    </div>
+
+    <div class="products">
+
+        <div class="product-card">
+            <div class="product-icon">🌮</div>
+            <h3>Baleada sencilla</h3>
+            <p>Baleada con frijoles, mantequilla y queso.</p>
+            <div class="price">L 20.00</div>
+        </div>
+
+    </div>
+
+</section>
+
+<footer id="contacto">
+    <h2>BALEADAS MARY</h2>
+    <p>El sabor de nuestra tierra en cada baleada.</p>
+    <p>Morazán, Yoro, Honduras</p>
+    <p>© 2026 Baleadas Mary. Todos los derechos reservados.</p>
+</footer>
+
+</body>
+</html>
+
