@@ -262,14 +262,6 @@ nav a {
     cursor: pointer;
 }
 
-.total {
-    font-size: 23px;
-    font-weight: 900;
-    color: var(--terracota);
-    text-align: right;
-    margin-top: 20px;
-}
-
 .checkout-button {
     width: 100%;
     margin-top: 20px;
@@ -417,41 +409,91 @@ footer p {
 
 <script>
 
-/* PRODUCTOS TEMPORALES DE PRUEBA.
-   Luego se cargarán automáticamente desde Google Sheets. */
+/* =========================================
+   CONEXIÓN CON GOOGLE SHEETS
+========================================= */
 
-const productos = [
-    {
-        codigo: "BMB1",
-        nombre: "Baleada sencilla",
-        descripcion: "Baleada con frijoles, mantequilla y queso",
-        precio: 20,
-        tipo: "Baleadas",
-        imagen: "",
-        disponible: "SI"
-    }
-];
+const URL_PRODUCTOS = "https://script.google.com/macros/s/AKfycby1lwJqvvC-vBONX7cJ5KKQNaJMqaOrvw-z4iSKQRipTdgxAyzuiaAGJX3NnidUILaNWA/exec";
 
+/* PRODUCTOS Y CARRITO */
+
+let productos = [];
 let carrito = [];
 
-/* MOSTRAR PRODUCTOS AGRUPADOS POR TIPO */
+/* =========================================
+   CARGAR PRODUCTOS DESDE GOOGLE SHEETS
+========================================= */
+
+async function cargarProductos() {
+
+    const contenedor = document.getElementById("listaProductos");
+
+    contenedor.innerHTML =
+        '<p style="text-align:center;padding:25px;">Cargando nuestro menú...</p>';
+
+    try {
+
+        const respuesta = await fetch(URL_PRODUCTOS);
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron obtener los productos.");
+        }
+
+        const datos = await respuesta.json();
+
+        if (!Array.isArray(datos)) {
+            throw new Error(datos.error || "La respuesta recibida no es válida.");
+        }
+
+        productos = datos.map(p => ({
+            codigo: String(p.CODIGO || "").trim(),
+            nombre: String(p.NOMBRE || "").trim(),
+            descripcion: String(p.DESCRIPCION || "").trim(),
+            precio: Number(String(p.PRECIO || "0").replace(",", ".")),
+            tipo: String(p.TIPO || "Otros").trim(),
+            imagen: String(p.IMAGEN || "").trim(),
+            disponible: String(p.DISPONIBLE || "").trim().toUpperCase()
+        })).filter(p =>
+            p.codigo &&
+            p.nombre &&
+            p.disponible === "SI" &&
+            Number.isFinite(p.precio)
+        );
+
+        mostrarProductos();
+
+    } catch (error) {
+
+        console.error("Error al cargar productos:", error);
+
+        contenedor.innerHTML = `
+            <p style="text-align:center;padding:25px;color:#a64b25;">
+                No pudimos cargar el menú. Intenta actualizar la página.
+            </p>
+        `;
+    }
+}
+
+/* =========================================
+   MOSTRAR PRODUCTOS AGRUPADOS POR TIPO
+========================================= */
+
 function mostrarProductos() {
 
     const contenedor = document.getElementById("listaProductos");
     contenedor.innerHTML = "";
 
-    const tipos = [...new Set(
-        productos
-            .filter(p => p.disponible.toUpperCase() === "SI")
-            .map(p => p.tipo)
-    )];
+    if (productos.length === 0) {
+        contenedor.innerHTML =
+            '<p style="text-align:center;padding:25px;">Por el momento no hay productos disponibles.</p>';
+        return;
+    }
+
+    const tipos = [...new Set(productos.map(p => p.tipo))];
 
     tipos.forEach(tipo => {
 
-        const grupo = productos.filter(
-            p => p.tipo === tipo &&
-            p.disponible.toUpperCase() === "SI"
-        );
+        const grupo = productos.filter(p => p.tipo === tipo);
 
         const seccion = document.createElement("section");
         seccion.className = "tipo-grupo";
@@ -468,35 +510,73 @@ function mostrarProductos() {
             const tarjeta = document.createElement("article");
             tarjeta.className = "product-card";
 
-            const imagen = producto.imagen
-                ? `<img src="${producto.imagen}" alt="${producto.nombre}">`
-                : "🌮";
+            const imagenContenedor = document.createElement("div");
+            imagenContenedor.className = "product-image";
 
-            tarjeta.innerHTML = `
-                <div class="product-image">${imagen}</div>
-                <div class="product-info">
-                    <h3>${producto.nombre}</h3>
-                    <p>${producto.descripcion}</p>
-                    <div class="product-bottom">
-                        <span class="price">L ${Number(producto.precio).toFixed(2)}</span>
-                        <button class="add-button"
-                            onclick="agregarAlCarrito('${producto.codigo}')">
-                            + AGREGAR
-                        </button>
-                    </div>
-                </div>
-            `;
+            if (producto.imagen) {
+
+                const img = document.createElement("img");
+                img.src = producto.imagen;
+                img.alt = producto.nombre;
+
+                img.onerror = function() {
+                    imagenContenedor.textContent = "🌮";
+                };
+
+                imagenContenedor.appendChild(img);
+
+            } else {
+                imagenContenedor.textContent = "🌮";
+            }
+
+            const informacion = document.createElement("div");
+            informacion.className = "product-info";
+
+            const nombre = document.createElement("h3");
+            nombre.textContent = producto.nombre;
+
+            const descripcion = document.createElement("p");
+            descripcion.textContent = producto.descripcion;
+
+            const parteInferior = document.createElement("div");
+            parteInferior.className = "product-bottom";
+
+            const precio = document.createElement("span");
+            precio.className = "price";
+            precio.textContent = "L " + producto.precio.toFixed(2);
+
+            const boton = document.createElement("button");
+            boton.className = "add-button";
+            boton.textContent = "+ AGREGAR";
+
+            boton.addEventListener("click", function() {
+                agregarAlCarrito(producto.codigo);
+            });
+
+            parteInferior.appendChild(precio);
+            parteInferior.appendChild(boton);
+
+            informacion.appendChild(nombre);
+            informacion.appendChild(descripcion);
+            informacion.appendChild(parteInferior);
+
+            tarjeta.appendChild(imagenContenedor);
+            tarjeta.appendChild(informacion);
 
             grid.appendChild(tarjeta);
         });
 
         seccion.appendChild(titulo);
         seccion.appendChild(grid);
+
         contenedor.appendChild(seccion);
     });
 }
 
-/* AGREGAR PRODUCTOS */
+/* =========================================
+   AGREGAR PRODUCTOS AL CARRITO
+========================================= */
+
 function agregarAlCarrito(codigo) {
 
     const producto = productos.find(p => p.codigo === codigo);
@@ -516,7 +596,10 @@ function agregarAlCarrito(codigo) {
     mostrarCarrito();
 }
 
-/* CAMBIAR CANTIDADES */
+/* =========================================
+   CAMBIAR CANTIDADES
+========================================= */
+
 function cambiarCantidad(codigo, cambio) {
 
     const producto = carrito.find(p => p.codigo === codigo);
@@ -531,7 +614,10 @@ function cambiarCantidad(codigo, cambio) {
     mostrarCarrito();
 }
 
-/* MOSTRAR CARRITO */
+/* =========================================
+   MOSTRAR CARRITO
+========================================= */
+
 function mostrarCarrito() {
 
     const contenedor = document.getElementById("contenidoCarrito");
@@ -554,18 +640,48 @@ function mostrarCarrito() {
         const fila = document.createElement("div");
         fila.className = "cart-item";
 
-        fila.innerHTML = `
-            <div>
-                <strong>${p.nombre}</strong><br>
-                <small>L ${Number(p.precio).toFixed(2)} c/u</small>
-            </div>
-            <div class="quantity-controls">
-                <button onclick="cambiarCantidad('${p.codigo}', -1)">−</button>
-                <strong>${p.cantidad}</strong>
-                <button onclick="cambiarCantidad('${p.codigo}', 1)">+</button>
-                <strong>L ${subtotal.toFixed(2)}</strong>
-            </div>
-        `;
+        const informacion = document.createElement("div");
+
+        const nombre = document.createElement("strong");
+        nombre.textContent = p.nombre;
+
+        const salto = document.createElement("br");
+
+        const precio = document.createElement("small");
+        precio.textContent = "L " + p.precio.toFixed(2) + " c/u";
+
+        informacion.appendChild(nombre);
+        informacion.appendChild(salto);
+        informacion.appendChild(precio);
+
+        const controles = document.createElement("div");
+        controles.className = "quantity-controls";
+
+        const menos = document.createElement("button");
+        menos.textContent = "−";
+        menos.addEventListener("click", () => {
+            cambiarCantidad(p.codigo, -1);
+        });
+
+        const cantidad = document.createElement("strong");
+        cantidad.textContent = p.cantidad;
+
+        const mas = document.createElement("button");
+        mas.textContent = "+";
+        mas.addEventListener("click", () => {
+            cambiarCantidad(p.codigo, 1);
+        });
+
+        const subtotalTexto = document.createElement("strong");
+        subtotalTexto.textContent = "L " + subtotal.toFixed(2);
+
+        controles.appendChild(menos);
+        controles.appendChild(cantidad);
+        controles.appendChild(mas);
+        controles.appendChild(subtotalTexto);
+
+        fila.appendChild(informacion);
+        fila.appendChild(controles);
 
         contenedor.appendChild(fila);
     });
@@ -573,7 +689,10 @@ function mostrarCarrito() {
     totalElemento.textContent = "Total: L " + total.toFixed(2);
 }
 
-/* RESUMEN DE PRUEBA */
+/* =========================================
+   RESUMEN DEL PEDIDO (PRUEBA)
+========================================= */
+
 function mostrarPedido() {
 
     if (carrito.length === 0) {
@@ -585,8 +704,10 @@ function mostrarPedido() {
     let total = 0;
 
     carrito.forEach(p => {
+
         const subtotal = p.precio * p.cantidad;
         total += subtotal;
+
         mensaje += p.cantidad + " x " + p.nombre +
             " = L " + subtotal.toFixed(2) + "\n";
     });
@@ -596,8 +717,12 @@ function mostrarPedido() {
     alert(mensaje);
 }
 
-mostrarProductos();
+/* =========================================
+   INICIAR PÁGINA
+========================================= */
+
 mostrarCarrito();
+cargarProductos();
 
 </script>
 
