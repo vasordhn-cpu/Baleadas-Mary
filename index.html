@@ -7,6 +7,14 @@
 <title>Baleadas Mary | Morazán, Yoro</title>
 
 <style>
+:root {
+    --cafe: #57351f;
+    --terracota: #a64b25;
+    --dorado: #e8ad48;
+    --crema: #fff9ef;
+    --texto: #35271e;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -15,62 +23,61 @@
 
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: #fffaf2;
-    color: #30251e;
+    background: var(--crema);
+    color: var(--texto);
 }
 
 /* ENCABEZADO */
 header {
-    background: #ffffff;
-    padding: 15px 6%;
+    background: white;
+    min-height: 75px;
+    padding: 12px 5%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 3px 12px #00000012;
     position: relative;
-    z-index: 2;
+    z-index: 5;
 }
 
 .logo {
+    color: var(--terracota);
     font-size: 25px;
     font-weight: 900;
-    color: #a64b20;
     letter-spacing: 1px;
 }
 
 .logo span {
-    color: #e6a23c;
+    color: var(--dorado);
 }
 
 nav {
     display: flex;
+    align-items: center;
     gap: 25px;
 }
 
 nav a {
+    color: var(--cafe);
     text-decoration: none;
-    color: #49382c;
     font-weight: 700;
     font-size: 14px;
-}
-
-nav a:hover {
-    color: #d77b28;
 }
 
 /* PORTADA */
 .hero {
     min-height: 430px;
     background:
-    linear-gradient(rgba(22,35,20,0.38), rgba(22,35,20,0.48)),
+    linear-gradient(#14251b55, #14251b88),
     url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2000&q=85');
-    background-size: cover;
     background-position: center;
+    background-size: cover;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 40px 20px;
+    padding: 35px 20px;
     color: white;
 }
 
@@ -79,152 +86,276 @@ nav a:hover {
 }
 
 .hero h1 {
-    font-size: clamp(38px, 7vw, 68px);
+    font-size: clamp(40px, 7vw, 70px);
     font-weight: 900;
+    text-shadow: 2px 4px 12px #000;
     letter-spacing: 2px;
-    text-shadow: 2px 4px 10px rgba(0,0,0,0.5);
 }
 
 .hero p {
     font-size: 19px;
     margin-top: 15px;
-    text-shadow: 1px 2px 5px #222;
+    text-shadow: 1px 2px 5px #000;
 }
 
-.hero .location {
+.location {
     display: inline-block;
-    margin-top: 25px;
+    background: var(--dorado);
+    color: var(--cafe);
     padding: 11px 22px;
-    background: #e7a13d;
-    color: #30251e;
     border-radius: 30px;
+    margin-top: 25px;
     font-weight: 800;
 }
 
-/* NAVEGACIÓN DEL MENÚ */
+/* MENU */
 .menu-section {
-    padding: 55px 6%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 55px 25px;
+}
+
+.section-heading {
     text-align: center;
+    margin-bottom: 35px;
 }
 
-.section-title {
-    font-size: 34px;
-    color: #873d20;
-    font-weight: 900;
+.section-heading h2 {
+    font-size: 35px;
+    color: var(--terracota);
 }
 
-.section-description {
-    margin-top: 10px;
-    color: #78695d;
-    font-size: 16px;
+.section-heading p {
+    color: #837366;
+    margin-top: 8px;
 }
 
-.category-list {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin: 30px 0;
+/* GRUPOS DE PRODUCTOS */
+.tipo-grupo {
+    margin-bottom: 40px;
 }
 
-.category {
-    background: white;
-    border: 1px solid #ead9c6;
-    color: #754323;
-    border-radius: 25px;
-    padding: 11px 19px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.2s;
+.tipo-titulo {
+    color: var(--cafe);
+    font-size: 24px;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    border-bottom: 3px solid var(--dorado);
 }
 
-.category:hover {
-    background: #a64b20;
-    color: white;
-}
-
-/* PRODUCTOS */
 .products {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 22px;
-    max-width: 1100px;
-    margin: 0 auto;
 }
 
 .product-card {
     background: white;
     border-radius: 15px;
-    padding: 25px 20px;
-    border: 1px solid #f0e4d7;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.05);
+    overflow: hidden;
+    border: 1px solid #eee0d0;
+    box-shadow: 0 5px 18px #00000009;
+    transition: transform .2s;
 }
 
-.product-icon {
-    font-size: 45px;
-    margin-bottom: 12px;
+.product-card:hover {
+    transform: translateY(-4px);
 }
 
-.product-card h3 {
-    color: #873d20;
-    font-size: 19px;
+.product-image {
+    height: 170px;
+    background: #f1e6d8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 55px;
+    overflow: hidden;
 }
 
-.product-card p {
-    color: #78695d;
-    margin: 10px 0;
-    font-size: 14px;
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 18px;
+}
+
+.product-info h3 {
+    color: var(--terracota);
+    font-size: 18px;
+}
+
+.product-info p {
+    color: #786c61;
+    font-size: 13px;
+    min-height: 38px;
+    margin: 9px 0;
+}
+
+.product-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
 .price {
-    color: #b46a20;
-    font-size: 22px;
+    color: var(--terracota);
+    font-size: 21px;
     font-weight: 900;
 }
 
-/* PIE DE PÁGINA */
+.add-button {
+    background: var(--terracota);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.add-button:hover {
+    background: var(--cafe);
+}
+
+/* CARRITO */
+.cart-section {
+    background: white;
+    max-width: 900px;
+    margin: 15px auto 55px;
+    padding: 28px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px #0000000c;
+}
+
+.cart-section h2 {
+    color: var(--terracota);
+    margin-bottom: 20px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #eee4da;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.quantity-controls button {
+    border: none;
+    background: #f2e6d9;
+    color: var(--cafe);
+    width: 27px;
+    height: 27px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.total {
+    font-size: 23px;
+    font-weight: 900;
+    color: var(--terracota);
+    text-align: right;
+    margin-top: 20px;
+}
+
+.checkout-button {
+    width: 100%;
+    margin-top: 20px;
+    background: #238b4e;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 800;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.empty-cart {
+    color: #887a6e;
+    text-align: center;
+    padding: 15px;
+}
+
+/* PIE DE PAGINA */
 footer {
-    background: #38281e;
+    background: var(--cafe);
     color: white;
     text-align: center;
-    padding: 30px 15px;
-    margin-top: 45px;
+    padding: 32px 15px;
 }
 
 footer h2 {
-    color: #f0b34f;
+    color: var(--dorado);
     margin-bottom: 10px;
 }
 
 footer p {
-    font-size: 14px;
     margin-top: 7px;
-    color: #e8ded4;
+    font-size: 14px;
 }
 
-@media (max-width: 650px) {
+@media(max-width:650px) {
     header {
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
     }
 
     nav {
-        gap: 15px;
+        gap: 17px;
         flex-wrap: wrap;
         justify-content: center;
     }
 
-    nav a {
-        font-size: 13px;
-    }
-
     .hero {
-        min-height: 350px;
+        min-height: 340px;
     }
 
     .menu-section {
-        padding: 40px 5%;
+        padding: 40px 16px;
+    }
+
+    .products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .product-image {
+        height: 125px;
+    }
+
+    .product-info {
+        padding: 12px;
+    }
+
+    .product-info h3 {
+        font-size: 15px;
+    }
+
+    .price {
+        font-size: 17px;
+    }
+
+    .add-button {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .cart-section {
+        margin: 15px 12px 35px;
+        padding: 18px;
     }
 }
 </style>
@@ -238,7 +369,7 @@ footer p {
     <nav>
         <a href="#inicio">INICIO</a>
         <a href="#menu">MENÚ</a>
-        <a href="#contacto">CONTACTO</a>
+        <a href="#carrito">MI PEDIDO</a>
     </nav>
 </header>
 
@@ -250,46 +381,225 @@ footer p {
     </div>
 </section>
 
-<section class="menu-section" id="menu">
+<main class="menu-section" id="menu">
 
-    <h2 class="section-title">NUESTRO MENÚ</h2>
-    <p class="section-description">
-        Descubre nuestros sabores y disfruta cada bocado.
-    </p>
-
-    <div class="category-list">
-        <button class="category">Baleadas</button>
-        <button class="category">Desayunos</button>
-        <button class="category">Almuerzos</button>
-        <button class="category">Hamburguesas</button>
-        <button class="category">Pollo</button>
-        <button class="category">Tacos y enchiladas</button>
-        <button class="category">Combos</button>
-        <button class="category">Bebidas naturales</button>
-        <button class="category">Refrescos</button>
-        <button class="category">Postres</button>
+    <div class="section-heading">
+        <h2>NUESTRO MENÚ</h2>
+        <p>Preparamos cada pedido con mucho sabor y cariño.</p>
     </div>
 
-    <div class="products">
+    <div id="listaProductos"></div>
 
-        <div class="product-card">
-            <div class="product-icon">🌮</div>
-            <h3>Baleada sencilla</h3>
-            <p>Baleada con frijoles, mantequilla y queso.</p>
-            <div class="price">L 20.00</div>
-        </div>
+</main>
 
+<section class="cart-section" id="carrito">
+    <h2>🛒 MI PEDIDO</h2>
+
+    <div id="contenidoCarrito">
+        <div class="empty-cart">Todavía no has agregado productos.</div>
     </div>
 
+    <div class="total" id="totalCarrito">
+        Total: L 0.00
+    </div>
+
+    <button class="checkout-button" onclick="mostrarPedido()">
+        CONTINUAR CON MI PEDIDO
+    </button>
 </section>
 
-<footer id="contacto">
+<footer>
     <h2>BALEADAS MARY</h2>
-    <p>El sabor de nuestra tierra en cada baleada.</p>
+    <p>El sabor de nuestra tierra en cada bocado.</p>
     <p>Morazán, Yoro, Honduras</p>
     <p>© 2026 Baleadas Mary. Todos los derechos reservados.</p>
 </footer>
 
+<script>
+
+/* PRODUCTOS TEMPORALES DE PRUEBA.
+   Luego se cargarán automáticamente desde Google Sheets. */
+
+const productos = [
+    {
+        codigo: "BMB1",
+        nombre: "Baleada sencilla",
+        descripcion: "Baleada con frijoles, mantequilla y queso",
+        precio: 20,
+        tipo: "Baleadas",
+        imagen: "",
+        disponible: "SI"
+    }
+];
+
+let carrito = [];
+
+/* MOSTRAR PRODUCTOS AGRUPADOS POR TIPO */
+function mostrarProductos() {
+
+    const contenedor = document.getElementById("listaProductos");
+    contenedor.innerHTML = "";
+
+    const tipos = [...new Set(
+        productos
+            .filter(p => p.disponible.toUpperCase() === "SI")
+            .map(p => p.tipo)
+    )];
+
+    tipos.forEach(tipo => {
+
+        const grupo = productos.filter(
+            p => p.tipo === tipo &&
+            p.disponible.toUpperCase() === "SI"
+        );
+
+        const seccion = document.createElement("section");
+        seccion.className = "tipo-grupo";
+
+        const titulo = document.createElement("h3");
+        titulo.className = "tipo-titulo";
+        titulo.textContent = tipo;
+
+        const grid = document.createElement("div");
+        grid.className = "products";
+
+        grupo.forEach(producto => {
+
+            const tarjeta = document.createElement("article");
+            tarjeta.className = "product-card";
+
+            const imagen = producto.imagen
+                ? `<img src="${producto.imagen}" alt="${producto.nombre}">`
+                : "🌮";
+
+            tarjeta.innerHTML = `
+                <div class="product-image">${imagen}</div>
+                <div class="product-info">
+                    <h3>${producto.nombre}</h3>
+                    <p>${producto.descripcion}</p>
+                    <div class="product-bottom">
+                        <span class="price">L ${Number(producto.precio).toFixed(2)}</span>
+                        <button class="add-button"
+                            onclick="agregarAlCarrito('${producto.codigo}')">
+                            + AGREGAR
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            grid.appendChild(tarjeta);
+        });
+
+        seccion.appendChild(titulo);
+        seccion.appendChild(grid);
+        contenedor.appendChild(seccion);
+    });
+}
+
+/* AGREGAR PRODUCTOS */
+function agregarAlCarrito(codigo) {
+
+    const producto = productos.find(p => p.codigo === codigo);
+    if (!producto) return;
+
+    const existente = carrito.find(p => p.codigo === codigo);
+
+    if (existente) {
+        existente.cantidad++;
+    } else {
+        carrito.push({
+            ...producto,
+            cantidad: 1
+        });
+    }
+
+    mostrarCarrito();
+}
+
+/* CAMBIAR CANTIDADES */
+function cambiarCantidad(codigo, cambio) {
+
+    const producto = carrito.find(p => p.codigo === codigo);
+    if (!producto) return;
+
+    producto.cantidad += cambio;
+
+    if (producto.cantidad <= 0) {
+        carrito = carrito.filter(p => p.codigo !== codigo);
+    }
+
+    mostrarCarrito();
+}
+
+/* MOSTRAR CARRITO */
+function mostrarCarrito() {
+
+    const contenedor = document.getElementById("contenidoCarrito");
+    const totalElemento = document.getElementById("totalCarrito");
+
+    contenedor.innerHTML = "";
+
+    if (carrito.length === 0) {
+        contenedor.innerHTML =
+            '<div class="empty-cart">Todavía no has agregado productos.</div>';
+    }
+
+    let total = 0;
+
+    carrito.forEach(p => {
+
+        const subtotal = p.precio * p.cantidad;
+        total += subtotal;
+
+        const fila = document.createElement("div");
+        fila.className = "cart-item";
+
+        fila.innerHTML = `
+            <div>
+                <strong>${p.nombre}</strong><br>
+                <small>L ${Number(p.precio).toFixed(2)} c/u</small>
+            </div>
+            <div class="quantity-controls">
+                <button onclick="cambiarCantidad('${p.codigo}', -1)">−</button>
+                <strong>${p.cantidad}</strong>
+                <button onclick="cambiarCantidad('${p.codigo}', 1)">+</button>
+                <strong>L ${subtotal.toFixed(2)}</strong>
+            </div>
+        `;
+
+        contenedor.appendChild(fila);
+    });
+
+    totalElemento.textContent = "Total: L " + total.toFixed(2);
+}
+
+/* RESUMEN DE PRUEBA */
+function mostrarPedido() {
+
+    if (carrito.length === 0) {
+        alert("Agrega al menos un producto a tu pedido.");
+        return;
+    }
+
+    let mensaje = "RESUMEN DE MI PEDIDO\n\n";
+    let total = 0;
+
+    carrito.forEach(p => {
+        const subtotal = p.precio * p.cantidad;
+        total += subtotal;
+        mensaje += p.cantidad + " x " + p.nombre +
+            " = L " + subtotal.toFixed(2) + "\n";
+    });
+
+    mensaje += "\nTOTAL: L " + total.toFixed(2);
+
+    alert(mensaje);
+}
+
+mostrarProductos();
+mostrarCarrito();
+
+</script>
+
 </body>
 </html>
-
