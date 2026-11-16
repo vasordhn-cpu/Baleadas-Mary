@@ -664,7 +664,6 @@ footer p {
 
 const URL_PRODUCTOS = "https://script.google.com/macros/s/AKfycby1lwJqvvC-vBONX7cJ5KKQNaJMqaOrvw-z4iSKQRipTdgxAyzuiaAGJX3NnidUILaNWA/exec";
 
-/* WHATSAPP TEMPORAL DE PRUEBAS */
 const WHATSAPP_RESTAURANTE = "50431562723";
 
 let productos = [];
@@ -771,13 +770,13 @@ function mostrarProductos() {
                 img.alt = producto.nombre;
 
                 img.onerror = function() {
-                    imagenContenedor.textContent = "🌮";
+                    imagenContenedor.textContent = "\uD83C\uDF2E";
                 };
 
                 imagenContenedor.appendChild(img);
 
             } else {
-                imagenContenedor.textContent = "🌮";
+                imagenContenedor.textContent = "\uD83C\uDF2E";
             }
 
             const informacion = document.createElement("div");
@@ -947,28 +946,37 @@ function mostrarCarrito() {
 }
 
 /* =========================================
-   GENERAR NÚMERO CORTO DE PEDIDO
+   GENERAR NÚMERO CONSECUTIVO DESDE APPS SCRIPT
 ========================================= */
 
-function generarNumeroPedido() {
+async function generarNumeroPedido() {
 
-    const caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let codigo = "";
+    const url = URL_PRODUCTOS +
+        "?accion=generarPedido&fecha=" + Date.now();
 
-    for (let i = 0; i < 5; i++) {
-        codigo += caracteres.charAt(
-            Math.floor(Math.random() * caracteres.length)
-        );
+    const respuesta = await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+    });
+
+    if (!respuesta.ok) {
+        throw new Error("No se pudo conectar con el contador.");
     }
 
-    return "BM-" + codigo;
+    const resultado = await respuesta.json();
+
+    if (!resultado.correcto || !resultado.numero) {
+        throw new Error(resultado.error || "No se pudo generar el pedido.");
+    }
+
+    return resultado.numero;
 }
 
 /* =========================================
    PREPARAR COMPROBANTE
 ========================================= */
 
-function prepararPedido() {
+async function prepararPedido() {
 
     if (carrito.length === 0) {
         alert("Agrega al menos un producto a tu pedido.");
@@ -999,23 +1007,46 @@ function prepararPedido() {
         return;
     }
 
-    const total = carrito.reduce(
-        (suma, p) => suma + (p.precio * p.cantidad), 0
-    );
+    const boton = document.querySelector(".checkout-button");
+    boton.disabled = true;
+    boton.textContent = "GENERANDO PEDIDO...";
 
-    const ahora = new Date();
+    try {
 
-    pedidoPreparado = {
-        numero: generarNumeroPedido(),
-        fecha: ahora.toLocaleString("es-HN"),
-        nombre: nombre,
-        telefono: telefono,
-        observaciones: observaciones,
-        productos: carrito.map(p => ({...p})),
-        total: total
-    };
+        const numero = await generarNumeroPedido();
 
-    mostrarComprobante();
+        const total = carrito.reduce(
+            (suma, p) => suma + (p.precio * p.cantidad), 0
+        );
+
+        const ahora = new Date();
+
+        pedidoPreparado = {
+            numero: numero,
+            fecha: ahora.toLocaleString("es-HN"),
+            nombre: nombre,
+            telefono: telefono,
+            observaciones: observaciones,
+            productos: carrito.map(p => ({...p})),
+            total: total
+        };
+
+        mostrarComprobante();
+
+    } catch (error) {
+
+        console.error("Error al generar pedido:", error);
+
+        alert(
+            "No pudimos generar el número de pedido. " +
+            "Revisa tu conexión e inténtalo nuevamente."
+        );
+
+    } finally {
+
+        boton.disabled = false;
+        boton.textContent = "REVISAR MI PEDIDO";
+    }
 }
 
 /* =========================================
@@ -1092,7 +1123,7 @@ function ocultarComprobante() {
 
 /* =========================================
    ENVIAR PEDIDO POR WHATSAPP
-   EMOJIS CON CODIGOS UNICODE
+   EMOJIS UNICODE Y CODIFICACIÓN UTF-8
 ========================================= */
 
 function enviarPorWhatsApp() {
@@ -1145,9 +1176,21 @@ function enviarPorWhatsApp() {
     mensaje += "\n\u23F3 *Pedido pendiente de confirmación.*";
     mensaje += "\nPor favor, confirmar el tiempo de preparación.";
 
-    const url = "https://wa.me/" +
-        WHATSAPP_RESTAURANTE +
-        "?text=" + encodeURIComponent(mensaje);
+    const textoCodificado = encodeURIComponent(mensaje);
+
+    const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    let url;
+
+    if (esMovil) {
+        url = "https://wa.me/" +
+            WHATSAPP_RESTAURANTE +
+            "?text=" + textoCodificado;
+    } else {
+        url = "https://web.whatsapp.com/send?phone=" +
+            WHATSAPP_RESTAURANTE +
+            "&text=" + textoCodificado;
+    }
 
     window.open(url, "_blank");
 }
@@ -1163,3 +1206,5 @@ cargarProductos();
 
 </body>
 </html>
+
+
