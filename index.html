@@ -947,6 +947,24 @@ function mostrarCarrito() {
 }
 
 /* =========================================
+   GENERAR NÚMERO CORTO DE PEDIDO
+========================================= */
+
+function generarNumeroPedido() {
+
+    const caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let codigo = "";
+
+    for (let i = 0; i < 5; i++) {
+        codigo += caracteres.charAt(
+            Math.floor(Math.random() * caracteres.length)
+        );
+    }
+
+    return "BM-" + codigo;
+}
+
+/* =========================================
    PREPARAR COMPROBANTE
 ========================================= */
 
@@ -987,14 +1005,8 @@ function prepararPedido() {
 
     const ahora = new Date();
 
-    const numeroPedido = "BM-" +
-        ahora.getFullYear().toString().slice(-2) +
-        String(ahora.getMonth() + 1).padStart(2, "0") +
-        String(ahora.getDate()).padStart(2, "0") +
-        "-" + String(ahora.getTime()).slice(-6);
-
     pedidoPreparado = {
-        numero: numeroPedido,
+        numero: generarNumeroPedido(),
         fecha: ahora.toLocaleString("es-HN"),
         nombre: nombre,
         telefono: telefono,
@@ -1004,7 +1016,6 @@ function prepararPedido() {
     };
 
     mostrarComprobante();
-
 }
 
 /* =========================================
@@ -1022,7 +1033,7 @@ function mostrarComprobante() {
     datos.innerHTML = "";
 
     const campos = [
-        ["Pedido:", pedidoPreparado.numero],
+        ["Número de pedido:", pedidoPreparado.numero],
         ["Fecha:", pedidoPreparado.fecha],
         ["Cliente:", pedidoPreparado.nombre],
         ["Teléfono:", pedidoPreparado.telefono],
@@ -1081,6 +1092,7 @@ function ocultarComprobante() {
 
 /* =========================================
    ENVIAR PEDIDO POR WHATSAPP
+   EMOJIS CON CODIGOS UNICODE
 ========================================= */
 
 function enviarPorWhatsApp() {
@@ -1092,36 +1104,45 @@ function enviarPorWhatsApp() {
 
     let mensaje = "";
 
-    mensaje += "🍽️ *NUEVO PEDIDO - BALEADAS MARY*\n\n";
+    mensaje += "\uD83C\uDF7D\uFE0F *NUEVO PEDIDO - BALEADAS MARY*\n\n";
 
-    mensaje += "*Número de pedido:* " + pedidoPreparado.numero + "\n";
-    mensaje += "*Fecha:* " + pedidoPreparado.fecha + "\n\n";
+    mensaje += "\uD83E\uDDFE *Número de pedido:* " +
+        pedidoPreparado.numero + "\n";
 
-    mensaje += "👤 *DATOS DEL CLIENTE*\n";
-    mensaje += "Nombre: " + pedidoPreparado.nombre + "\n";
-    mensaje += "Teléfono: " + pedidoPreparado.telefono + "\n";
-    mensaje += "Modalidad: Recoger en el restaurante\n";
+    mensaje += "\uD83D\uDCC5 *Fecha:* " +
+        pedidoPreparado.fecha + "\n\n";
 
-    mensaje += "\n🛒 *PRODUCTOS DEL PEDIDO*\n";
+    mensaje += "\uD83D\uDC64 *DATOS DEL CLIENTE*\n";
+
+    mensaje += "\uD83D\uDE4B Nombre: " +
+        pedidoPreparado.nombre + "\n";
+
+    mensaje += "\uD83D\uDCF1 Teléfono: " +
+        pedidoPreparado.telefono + "\n";
+
+    mensaje += "\uD83D\uDCCD Modalidad: Recoger en el restaurante\n";
+
+    mensaje += "\n\uD83D\uDED2 *PRODUCTOS DEL PEDIDO*\n";
 
     pedidoPreparado.productos.forEach(p => {
 
         const subtotal = p.precio * p.cantidad;
 
-        mensaje +=
+        mensaje += "\uD83C\uDF74 " +
             p.cantidad + " x " + p.nombre +
             " - L " + subtotal.toFixed(2) + "\n";
     });
 
-    mensaje += "\n*TOTAL: L " +
+    mensaje += "\n\uD83D\uDCB0 *TOTAL: L " +
         pedidoPreparado.total.toFixed(2) + "*\n";
 
     if (pedidoPreparado.observaciones) {
-        mensaje += "\n📝 *OBSERVACIONES:*\n";
+
+        mensaje += "\n\uD83D\uDCDD *OBSERVACIONES:*\n";
         mensaje += pedidoPreparado.observaciones + "\n";
     }
 
-    mensaje += "\n⚠️ Pedido pendiente de confirmación.";
+    mensaje += "\n\u23F3 *Pedido pendiente de confirmación.*";
     mensaje += "\nPor favor, confirmar el tiempo de preparación.";
 
     const url = "https://wa.me/" +
