@@ -357,6 +357,12 @@ nav a {
     background: #176b39;
 }
 
+.checkout-button:disabled,
+.whatsapp-button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
 .whatsapp-button {
     width: 100%;
     margin-top: 15px;
@@ -669,6 +675,8 @@ const WHATSAPP_RESTAURANTE = "50431562723";
 let productos = [];
 let carrito = [];
 let pedidoPreparado = null;
+let enviandoPedido = false;
+
 
 /* =========================================
    CARGAR PRODUCTOS DESDE GOOGLE SHEETS
@@ -723,6 +731,7 @@ async function cargarProductos() {
         `;
     }
 }
+
 
 /* =========================================
    MOSTRAR PRODUCTOS AGRUPADOS POR TIPO
@@ -823,6 +832,7 @@ function mostrarProductos() {
     });
 }
 
+
 /* =========================================
    AGREGAR PRODUCTOS AL CARRITO
 ========================================= */
@@ -849,6 +859,7 @@ function agregarAlCarrito(codigo) {
     mostrarCarrito();
 }
 
+
 /* =========================================
    CAMBIAR CANTIDADES
 ========================================= */
@@ -869,6 +880,7 @@ function cambiarCantidad(codigo, cambio) {
 
     mostrarCarrito();
 }
+
 
 /* =========================================
    MOSTRAR CARRITO
@@ -945,6 +957,7 @@ function mostrarCarrito() {
     totalElemento.textContent = "Total: L " + total.toFixed(2);
 }
 
+
 /* =========================================
    GENERAR NÚMERO CONSECUTIVO DESDE APPS SCRIPT
 ========================================= */
@@ -971,6 +984,7 @@ async function generarNumeroPedido() {
 
     return resultado.numero;
 }
+
 
 /* =========================================
    PREPARAR COMPROBANTE
@@ -1049,6 +1063,7 @@ async function prepararPedido() {
     }
 }
 
+
 /* =========================================
    MOSTRAR COMPROBANTE
 ========================================= */
@@ -1110,6 +1125,7 @@ function mostrarComprobante() {
     });
 }
 
+
 /* =========================================
    VOLVER A EDITAR EL PEDIDO
 ========================================= */
@@ -1121,79 +1137,194 @@ function ocultarComprobante() {
     pedidoPreparado = null;
 }
 
+
 /* =========================================
-   ENVIAR PEDIDO POR WHATSAPP
-   EMOJIS UNICODE Y CODIFICACIÓN UTF-8
+   GUARDAR PEDIDO EN GOOGLE SHEETS
 ========================================= */
 
-function enviarPorWhatsApp() {
+async function guardarPedidoEnSheets() {
+
+    if (!pedidoPreparado) {
+        throw new Error("No hay un pedido preparado.");
+    }
+
+    const datosPedido = {
+        numero: pedidoPreparado.numero,
+        cliente: pedidoPreparado.nombre,
+        telefono: pedidoPreparado.telefono,
+        modalidad: "Recoger",
+        observaciones: pedidoPreparado.observaciones,
+        productos: pedidoPreparado.productos.map(p => ({
+            codigo: p.codigo,
+            nombre: p.nombre,
+            precio: p.precio,
+            cantidad: p.cantidad
+        })),
+        total: pedidoPreparado.total
+    };
+
+    const cuerpo = new URLSearchParams();
+    cuerpo.append("datos", JSON.stringify(datosPedido));
+
+    const respuesta = await fetch(URL_PRODUCTOS, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        body: cuerpo.toString()
+    });
+
+    if (!respuesta.ok) {
+        throw new Error("No se pudo comunicar con Google Sheets.");
+    }
+
+    const resultado = await respuesta.json();
+
+    if (!resultado.correcto) {
+        throw new Error(
+            resultado.error || "Google Sheets no confirmó el registro."
+        );
+    }
+
+    return resultado;
+}
+
+
+/* =========================================
+   ENVIAR PEDIDO POR WHATSAPP
+   PRIMERO GUARDA EN GOOGLE SHEETS
+========================================= */
+
+async function enviarPorWhatsApp() {
 
     if (!pedidoPreparado) {
         alert("Primero debes preparar tu pedido.");
         return;
     }
 
-    let mensaje = "";
-
-    mensaje += "\uD83C\uDF7D\uFE0F *NUEVO PEDIDO - BALEADAS MARY*\n\n";
-
-    mensaje += "\uD83E\uDDFE *Número de pedido:* " +
-        pedidoPreparado.numero + "\n";
-
-    mensaje += "\uD83D\uDCC5 *Fecha:* " +
-        pedidoPreparado.fecha + "\n\n";
-
-    mensaje += "\uD83D\uDC64 *DATOS DEL CLIENTE*\n";
-
-    mensaje += "\uD83D\uDE4B Nombre: " +
-        pedidoPreparado.nombre + "\n";
-
-    mensaje += "\uD83D\uDCF1 Teléfono: " +
-        pedidoPreparado.telefono + "\n";
-
-    mensaje += "\uD83D\uDCCD Modalidad: Recoger en el restaurante\n";
-
-    mensaje += "\n\uD83D\uDED2 *PRODUCTOS DEL PEDIDO*\n";
-
-    pedidoPreparado.productos.forEach(p => {
-
-        const subtotal = p.precio * p.cantidad;
-
-        mensaje += "\uD83C\uDF74 " +
-            p.cantidad + " x " + p.nombre +
-            " - L " + subtotal.toFixed(2) + "\n";
-    });
-
-    mensaje += "\n\uD83D\uDCB0 *TOTAL: L " +
-        pedidoPreparado.total.toFixed(2) + "*\n";
-
-    if (pedidoPreparado.observaciones) {
-
-        mensaje += "\n\uD83D\uDCDD *OBSERVACIONES:*\n";
-        mensaje += pedidoPreparado.observaciones + "\n";
+    if (enviandoPedido) {
+        return;
     }
 
-    mensaje += "\n\u23F3 *Pedido pendiente de confirmación.*";
-    mensaje += "\nPor favor, confirmar el tiempo de preparación.";
+    const boton = document.querySelector(".whatsapp-button");
 
-    const textoCodificado = encodeURIComponent(mensaje);
+    // Abrir una ventana durante el clic del usuario para evitar
+    // que el navegador bloquee WhatsApp después de esperar el registro.
+    const ventanaWhatsApp = window.open("about:blank", "_blank");
 
-    const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    enviandoPedido = true;
+    boton.disabled = true;
+    boton.textContent = "REGISTRANDO PEDIDO...";
 
-    let url;
+    try {
 
-    if (esMovil) {
-        url = "https://wa.me/" +
-            WHATSAPP_RESTAURANTE +
-            "?text=" + textoCodificado;
-    } else {
-        url = "https://web.whatsapp.com/send?phone=" +
-            WHATSAPP_RESTAURANTE +
-            "&text=" + textoCodificado;
+        // PRIMERO REGISTRAR EN GOOGLE SHEETS
+        const resultado = await guardarPedidoEnSheets();
+
+        if (!resultado.correcto) {
+            throw new Error("No se confirmó el registro del pedido.");
+        }
+
+        // SOLO DESPUÉS DE CONFIRMAR EL REGISTRO, ABRIR WHATSAPP
+        let mensaje = "";
+
+        mensaje += "\uD83C\uDF7D\uFE0F *NUEVO PEDIDO - BALEADAS MARY*\n\n";
+
+        mensaje += "\uD83E\uDDFE *Número de pedido:* " +
+            pedidoPreparado.numero + "\n";
+
+        mensaje += "\uD83D\uDCC5 *Fecha:* " +
+            pedidoPreparado.fecha + "\n\n";
+
+        mensaje += "\uD83D\uDC64 *DATOS DEL CLIENTE*\n";
+
+        mensaje += "\uD83D\uDE4B Nombre: " +
+            pedidoPreparado.nombre + "\n";
+
+        mensaje += "\uD83D\uDCF1 Teléfono: " +
+            pedidoPreparado.telefono + "\n";
+
+        mensaje += "\uD83D\uDCCD Modalidad: Recoger en el restaurante\n";
+
+        mensaje += "\n\uD83D\uDED2 *PRODUCTOS DEL PEDIDO*\n";
+
+        pedidoPreparado.productos.forEach(p => {
+
+            const subtotal = p.precio * p.cantidad;
+
+            mensaje += "\uD83C\uDF74 " +
+                p.cantidad + " x " + p.nombre +
+                " - L " + subtotal.toFixed(2) + "\n";
+        });
+
+        mensaje += "\n\uD83D\uDCB0 *TOTAL: L " +
+            pedidoPreparado.total.toFixed(2) + "*\n";
+
+        if (pedidoPreparado.observaciones) {
+
+            mensaje += "\n\uD83D\uDCDD *OBSERVACIONES:*\n";
+            mensaje += pedidoPreparado.observaciones + "\n";
+        }
+
+        mensaje += "\n\u23F3 *Pedido pendiente de confirmación.*";
+        mensaje += "\nPor favor, confirmar el tiempo de preparación.";
+
+        const textoCodificado = encodeURIComponent(mensaje);
+
+        const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        let url;
+
+        if (esMovil) {
+            url = "https://wa.me/" +
+                WHATSAPP_RESTAURANTE +
+                "?text=" + textoCodificado;
+        } else {
+            url = "https://web.whatsapp.com/send?phone=" +
+                WHATSAPP_RESTAURANTE +
+                "&text=" + textoCodificado;
+        }
+
+        // Navegar a WhatsApp únicamente después de confirmar el guardado.
+        if (ventanaWhatsApp && !ventanaWhatsApp.closed) {
+            ventanaWhatsApp.location.href = url;
+        } else {
+            window.location.href = url;
+        }
+
+        boton.textContent = "PEDIDO REGISTRADO";
+
+        alert(
+            "¡Pedido registrado correctamente!\n\n" +
+            "Número: " + pedidoPreparado.numero +
+            "\n\nAhora puedes enviarlo por WhatsApp."
+        );
+
+    } catch (error) {
+
+        console.error("Error al registrar pedido:", error);
+
+        // Si el registro falla, no se abre WhatsApp.
+        if (ventanaWhatsApp && !ventanaWhatsApp.closed) {
+            ventanaWhatsApp.close();
+        }
+
+        alert(
+            "NO SE PUDO REGISTRAR EL PEDIDO.\n\n" +
+            "No enviaremos el pedido por WhatsApp hasta confirmar " +
+            "que quedó guardado en el sistema.\n\n" +
+            "Detalle: " + error.message
+        );
+
+        boton.disabled = false;
+        boton.textContent = "ENVIAR PEDIDO POR WHATSAPP";
+
+    } finally {
+
+        enviandoPedido = false;
     }
-
-    window.open(url, "_blank");
 }
+
 
 /* =========================================
    INICIAR PÁGINA
@@ -1206,5 +1337,3 @@ cargarProductos();
 
 </body>
 </html>
-
-
